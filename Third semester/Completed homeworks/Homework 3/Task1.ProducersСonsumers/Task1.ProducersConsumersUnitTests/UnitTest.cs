@@ -46,6 +46,11 @@ namespace Task1.ProducersConsumersUnitTests
                 сonsumers[i].IsPurchasing = false;
             }
 
+            for (int i = 0; i < producersQuantity; i++)
+            {
+                сonsumers[i].thread.Join();
+            }
+
             Assert.IsTrue(storage.Count == 0);
         }
     }
