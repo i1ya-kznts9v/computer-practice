@@ -32,6 +32,11 @@ namespace Task1.ProducersConsumersUnitTests
                 producers[i].IsWorking = false;
             }
 
+            for (int i = 0; i < producersQuantity; i++)
+            {
+                producers[i].thread.Join();
+            }
+
             Assert.IsTrue(storage.Count != 0);
 
             for (int i = 0; i < consumersQuantity; i++)
