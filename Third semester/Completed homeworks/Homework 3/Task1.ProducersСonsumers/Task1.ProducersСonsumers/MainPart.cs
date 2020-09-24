@@ -25,7 +25,7 @@ namespace Task1.ProducersСonsumers
                 Console.WriteLine("Try again! It must be a number between 1 and 32.");
             }
 
-            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to stop and wait for the threads to shutdown safely.\n");
         }
 
         static void ProducersConsumersInitialize(ref Producer[] producers, uint producersQuantity, ref Consumer[] сonsumers, uint consumersQuantity,
@@ -53,6 +53,16 @@ namespace Task1.ProducersСonsumers
             for (int i = 0; i < consumersQuantity; i++)
             {
                 сonsumers[i].IsPurchasing = false;
+            }
+
+            for (int i = 0; i < producersQuantity; i++)
+            {
+                producers[i].thread.Join();
+            }
+
+            for (int i = 0; i < consumersQuantity; i++)
+            {
+                сonsumers[i].thread.Join();
             }
         }
 
