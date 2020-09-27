@@ -11,7 +11,7 @@ namespace Task1.ProducersСonsumers
         List<string> storage;
         static Random random = new Random();
 
-        public bool IsPurchasing { private get; set; } = true;
+        volatile bool IsPurchasing = true;
 
         public Consumer(string name, List<string> storage, Semaphore semaphore)
         {
@@ -20,6 +20,11 @@ namespace Task1.ProducersСonsumers
             this.semaphore = semaphore;
             this.storage = storage;
             thread.Start();
+        }
+
+        public void RequestStop()
+        {
+            IsPurchasing = false;
         }
 
         void UploadProduct()
@@ -43,7 +48,7 @@ namespace Task1.ProducersСonsumers
                 Thread.Sleep(500);
                 semaphore.Release();
             }
-            while (IsPurchasing == true);
+            while (IsPurchasing);
         }
     }
 }

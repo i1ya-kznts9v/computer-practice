@@ -29,7 +29,7 @@ namespace Task1.ProducersConsumersUnitTests
 
             for (int i = 0; i < producersQuantity; i++)
             {
-                producers[i].IsWorking = false;
+                producers[i].RequestStop();
             }
 
             for (int i = 0; i < producersQuantity; i++)
@@ -48,7 +48,7 @@ namespace Task1.ProducersConsumersUnitTests
 
             for (int i = 0; i < producersQuantity; i++)
             {
-                сonsumers[i].IsPurchasing = false;
+                сonsumers[i].RequestStop();
             }
 
             for (int i = 0; i < producersQuantity; i++)
