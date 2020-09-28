@@ -10,7 +10,7 @@ namespace Task1.ProducersСonsumers
         Semaphore semaphore;
         List<string> storage;
 
-        volatile bool IsWorking = true;
+        volatile bool isWorking = true;
 
         public Producer(string name, List<string> storage, Semaphore semaphore)
         {
@@ -23,7 +23,7 @@ namespace Task1.ProducersСonsumers
 
         public void RequestStop()
         {
-            IsWorking = false;
+            isWorking = false;
         }
 
         void UnloadProduct()
@@ -41,7 +41,7 @@ namespace Task1.ProducersСonsumers
                 Thread.Sleep(500);
                 semaphore.Release();
             }
-            while (IsWorking);
+            while (isWorking);
         }
     }
 }
