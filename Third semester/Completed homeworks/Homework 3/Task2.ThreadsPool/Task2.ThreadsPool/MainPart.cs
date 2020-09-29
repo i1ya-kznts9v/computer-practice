@@ -55,11 +55,11 @@ namespace Task2.ThreadsPool
             tasksDelegate += PrintFour;
 
             threadsPool.Enqueue(tasksDelegate);
+            Thread.Sleep(50);
             threadsPool.Enqueue(tasksDelegate);
 
             threadsPool.Dispose();
 
-            Console.WriteLine("\nAll tasks are completed, ThreadsPool is disposed.\n");
             Console.ReadKey();
         }
     }

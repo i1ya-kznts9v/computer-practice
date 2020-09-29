@@ -1,8 +1,6 @@
 ﻿using System;
-using Task2.ThreadsPool;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
-using System.Diagnostics;
 
 namespace Task2.UnitTests
 {
@@ -80,6 +78,9 @@ namespace Task2.UnitTests
             Assert.AreEqual(threadsQuantity, (uint)threadsPool.threads.Count);
 
             threadsPool.Enqueue(tasksDelegateOne);
+
+            Thread.Sleep(50);
+
             threadsPool.Enqueue(tasksDelegateTwo);
 
             Thread.Sleep(100);

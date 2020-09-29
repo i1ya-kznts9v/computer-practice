@@ -7,16 +7,14 @@ namespace Task2.ThreadsPool
 {
     public class ThreadsPool : IDisposable
     {
-        AutoResetEvent autoResetEvent = new AutoResetEvent(true);
+        AutoResetEvent autoResetEvent = new AutoResetEvent(false);
         public List<Thread> threads { get; private set; } = new List<Thread>();
         Queue<Action> tasks = new Queue<Action>();
-        volatile bool isExists;
+        volatile bool isExists = true;
 
         public ThreadsPool(uint threadsQuantity)
         {
-            isExists = true;
-
-            for(int i = 0; i < threadsQuantity; i++)
+            for (int i = 0; i < threadsQuantity; i++)
             {
                 Thread thread = new Thread(new ThreadStart(Execute));
 
@@ -28,17 +26,23 @@ namespace Task2.ThreadsPool
             }
         }
 
-        void WaitingNewTasks()
+        public void Enqueue(Action tasksDelegate)
         {
-            while(tasks.Count == 0 && isExists)
+            List<Delegate> taskDelegates = tasksDelegate.GetInvocationList().ToList();
+
+            foreach (var taskDelegate in taskDelegates)
             {
-                //Waiting for new tasks
+                Action task = (Action)taskDelegate;
+
+                tasks.Enqueue(task);
             }
 
-            if (isExists)
-            {
-                autoResetEvent.Set();
-            }
+            Start();
+        }
+
+        void Start()
+        {
+            autoResetEvent.Set();
         }
 
         void Execute()
@@ -52,30 +56,8 @@ namespace Task2.ThreadsPool
                     Action task = tasks.Dequeue();
 
                     autoResetEvent.Set();
-
                     task?.Invoke();
                 }
-                else if(tasks.Count == 0 && isExists)
-                {
-                    Thread thread = new Thread(new ThreadStart(WaitingNewTasks));
-
-                    thread.Name = "Waiting thread";
-                    thread.IsBackground = true;
-
-                    thread.Start();
-                }
-            }
-        }
-
-        public void Enqueue(Action tasksDelegate)
-        {
-            List<Delegate> taskDelegates = tasksDelegate.GetInvocationList().ToList();
-
-            foreach(var taskDelegate in taskDelegates)
-            {
-                Action task = (Action)taskDelegate;
-
-                tasks.Enqueue(task);
             }
         }
 
@@ -83,7 +65,7 @@ namespace Task2.ThreadsPool
         {
             while(tasks.Count != 0)
             {
-                //Waiting for completion of all tasks
+                // Waiting for completion of all current tasks
             }
 
             isExists = false;
@@ -101,6 +83,8 @@ namespace Task2.ThreadsPool
             threads.Clear();
             tasks.Clear();
             autoResetEvent.Dispose();
+
+            Console.WriteLine("\nThreadsPool is disposed.\n");
         }
     }
 }
