@@ -22,11 +22,6 @@ namespace Task1.ProducersСonsumers
             thread.Start();
         }
 
-        public void RequestStop()
-        {
-            isPurchasing = false;
-        }
-
         void UploadProduct()
         {
             //A postcondition loop allows the queue to run to the end.
@@ -45,10 +40,21 @@ namespace Task1.ProducersСonsumers
                 }
                 
                 Console.WriteLine(thread.Name + " purchase " + (product.Equals(string.Empty)? "nothing" : product) + " and left the storage.");
-                Thread.Sleep(500);
+                Thread.Sleep(10);
                 semaphore.Release();
             }
             while (isPurchasing);
+        }
+
+        public void Stop()
+        {
+            isPurchasing = false;
+            //thread.Join();
+        }
+
+        public void Join()
+        {
+            thread.Join();
         }
     }
 }

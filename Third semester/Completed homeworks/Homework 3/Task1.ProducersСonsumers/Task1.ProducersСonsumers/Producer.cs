@@ -21,11 +21,6 @@ namespace Task1.ProducersСonsumers
             thread.Start();
         }
 
-        public void RequestStop()
-        {
-            isWorking = false;
-        }
-
         void UnloadProduct()
         {
             //A postcondition loop allows the queue to run to the end.
@@ -38,10 +33,21 @@ namespace Task1.ProducersСonsumers
                 storage.Add(product);
 
                 Console.WriteLine(thread.Name + $" put up {product} for sale and left the storage.");
-                Thread.Sleep(500);
+                Thread.Sleep(10);
                 semaphore.Release();
             }
             while (isWorking);
+        }
+
+        public void Stop()
+        {
+            isWorking = false;
+            //thread.Join();
+        }
+
+        public void Join()
+        {
+            thread.Join();
         }
     }
 }

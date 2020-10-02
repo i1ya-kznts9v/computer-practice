@@ -47,22 +47,22 @@ namespace Task1.ProducersСonsumers
         {
             for (int i = 0; i < producersQuantity; i++)
             {
-                producers[i].RequestStop();
+                producers[i].Stop();
             }
 
             for (int i = 0; i < consumersQuantity; i++)
             {
-                сonsumers[i].RequestStop();
+                сonsumers[i].Stop();
             }
 
             for (int i = 0; i < producersQuantity; i++)
             {
-                producers[i].thread.Join();
+                producers[i].Join();
             }
 
             for (int i = 0; i < consumersQuantity; i++)
             {
-                сonsumers[i].thread.Join();
+                сonsumers[i].Join();
             }
 
             Console.WriteLine("\nAll threads of producers and consumers have been successfully completed.\n");

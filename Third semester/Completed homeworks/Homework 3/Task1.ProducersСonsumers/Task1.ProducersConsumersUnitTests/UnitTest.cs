@@ -29,12 +29,12 @@ namespace Task1.ProducersConsumersUnitTests
 
             for (int i = 0; i < producersQuantity; i++)
             {
-                producers[i].RequestStop();
+                producers[i].Stop();
             }
 
             for (int i = 0; i < producersQuantity; i++)
             {
-                producers[i].thread.Join();
+                producers[i].Join();
             }
 
             Assert.IsTrue(storage.Count != 0);
@@ -46,14 +46,14 @@ namespace Task1.ProducersConsumersUnitTests
 
             Thread.Sleep(4000);
 
-            for (int i = 0; i < producersQuantity; i++)
+            for (int i = 0; i < consumersQuantity; i++)
             {
-                сonsumers[i].RequestStop();
+                сonsumers[i].Stop();
             }
 
-            for (int i = 0; i < producersQuantity; i++)
+            for (int i = 0; i < consumersQuantity; i++)
             {
-                сonsumers[i].thread.Join();
+                сonsumers[i].Join();
             }
 
             Assert.IsTrue(storage.Count == 0);
