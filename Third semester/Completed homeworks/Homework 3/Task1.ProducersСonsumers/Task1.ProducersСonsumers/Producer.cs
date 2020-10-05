@@ -6,7 +6,7 @@ namespace Task1.ProducersСonsumers
 {
     public class Producer
     {
-        public Thread thread;
+        Thread thread;
         Semaphore semaphore;
         List<string> storage;
 

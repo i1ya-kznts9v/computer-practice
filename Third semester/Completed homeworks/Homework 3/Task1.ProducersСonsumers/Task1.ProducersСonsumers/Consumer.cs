@@ -6,7 +6,7 @@ namespace Task1.ProducersСonsumers
 {
     public class Consumer
     {
-        public Thread thread;
+        Thread thread;
         Semaphore semaphore;
         List<string> storage;
         static Random random = new Random();
