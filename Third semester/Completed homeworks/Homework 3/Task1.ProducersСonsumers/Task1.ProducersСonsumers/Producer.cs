@@ -33,8 +33,9 @@ namespace Task1.ProducersСonsumers
                 storage.Add(product);
 
                 Console.WriteLine(thread.Name + $" put up {product} for sale and left the storage.");
-                Thread.Sleep(10);
                 semaphore.Release();
+
+                Thread.Sleep(50);
             }
             while (isWorking);
         }

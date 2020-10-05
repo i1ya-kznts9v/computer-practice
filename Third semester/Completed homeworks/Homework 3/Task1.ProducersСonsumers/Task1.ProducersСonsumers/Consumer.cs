@@ -40,8 +40,9 @@ namespace Task1.ProducersСonsumers
                 }
                 
                 Console.WriteLine(thread.Name + " purchase " + (product.Equals(string.Empty)? "nothing" : product) + " and left the storage.");
-                Thread.Sleep(10);
                 semaphore.Release();
+
+                Thread.Sleep(50);
             }
             while (isPurchasing);
         }
