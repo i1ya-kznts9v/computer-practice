@@ -7,7 +7,7 @@ namespace Task2.ThreadsPool
 {
     public class ThreadsPool : IDisposable
     {
-        public List<Thread> threads { get; private set; } = new List<Thread>();
+        List<Thread> threads = new List<Thread>();
         Queue<Action> tasks = new Queue<Action>();
         volatile bool isRunning = true;
         bool isDisposed;
@@ -26,6 +26,11 @@ namespace Task2.ThreadsPool
             }
         }
 
+        public int GetThreadsCount()
+        {
+            return (threads.Count);
+        }
+
         public void Enqueue(Action tasksDelegate)
         {
             Monitor.Enter(tasks);
@@ -42,28 +47,54 @@ namespace Task2.ThreadsPool
             Monitor.Exit(tasks);
         }
 
+        //void Execute()
+        //{
+        //    while (isRunning)
+        //    {
+        //        Monitor.Enter(tasks);
+
+        //        if (tasks.Count > 0 && isRunning)
+        //        {
+        //            Action task = tasks.Dequeue();
+        //            Monitor.Exit(tasks);
+
+        //            task?.Invoke();
+        //        }
+        //        else if (tasks.Count == 0 && isRunning)
+        //        {
+        //            Monitor.Wait(tasks);
+        //            Monitor.Exit(tasks);
+        //        }
+        //        else if (!isRunning)
+        //        {
+        //            Monitor.Exit(tasks);
+        //        }
+        //    }
+        //}
+
         void Execute()
         {
             while (isRunning)
             {
+                Action task = null;
+
                 Monitor.Enter(tasks);
 
-                if (tasks.Count > 0 && isRunning)
+                while(task == null && isRunning)
                 {
-                    Action task = tasks.Dequeue();
-                    Monitor.Exit(tasks);
+                    if(tasks.Count == 0)
+                    {
+                        Monitor.Wait(tasks);
 
-                    task?.Invoke();
+                        continue;
+                    }
+
+                    task = tasks.Dequeue();
                 }
-                else if (tasks.Count == 0 && isRunning)
-                {
-                    Monitor.Wait(tasks);
-                    Monitor.Exit(tasks);
-                }
-                else if(!isRunning)
-                {
-                    Monitor.Exit(tasks);
-                }
+
+                Monitor.Exit(tasks);
+
+                task?.Invoke();
             }
         }
 

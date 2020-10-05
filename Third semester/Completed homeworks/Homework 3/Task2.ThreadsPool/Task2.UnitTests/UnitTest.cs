@@ -75,7 +75,7 @@ namespace Task2.UnitTests
 
             Thread.Sleep(100);
 
-            Assert.AreEqual(threadsQuantity, (uint)threadsPool.threads.Count);
+            Assert.AreEqual(threadsQuantity, (uint)threadsPool.GetThreadsCount());
 
             threadsPool.Enqueue(tasksDelegateOne);
             Thread.Sleep(50);
