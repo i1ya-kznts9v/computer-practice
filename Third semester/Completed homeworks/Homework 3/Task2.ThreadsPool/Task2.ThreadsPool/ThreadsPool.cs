@@ -28,11 +28,21 @@ namespace Task2.ThreadsPool
 
         public int GetThreadsCount()
         {
+            if (isDisposed)
+            {
+                return(0);
+            }
+
             return (threads.Count);
         }
 
         public void Enqueue(Action tasksDelegate)
         {
+            if (isDisposed)
+            {
+                return;
+            }
+
             Monitor.Enter(tasks);
             List<Delegate> taskDelegates = tasksDelegate.GetInvocationList().ToList();
 
