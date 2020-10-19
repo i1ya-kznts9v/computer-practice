@@ -41,28 +41,29 @@ namespace MPI
 
                 if (comm.Rank == 0)
                 {
-                    List<int> unsortedArray = ReadFileToList(args[0]).ToList<int>();
+                    List<int> unsortedList = ReadFileToList(args[0]);
 
-                    if(comm.Size > unsortedArray.Count)
+                    if(comm.Size > unsortedList.Count)
                     {
                         Console.WriteLine("There are too many nodes to sort this array");
 
                         return;
                     }
 
-                    int[] distribution = Distribute(unsortedArray.Count, comm.Size);
-                    partList = unsortedArray.GetRange(0, distribution[0]);
-                    int sum = distribution[0];
-
-                    for(int i = 1; i < comm.Size; i++)
+                    List<int>[] unsortedListDistributed = new List<int>[comm.Size];
+                    int[] distribution = Distribute(unsortedList.Count, comm.Size);
+                    
+                    for(int i = 0, sum = 0; i < unsortedListDistributed.Length; i++)
                     {
-                        comm.Send(unsortedArray.GetRange(sum, distribution[i]), i, 0);
+                        unsortedListDistributed[i] = unsortedList.GetRange(sum, distribution[i]);
                         sum += distribution[i];
                     }
+
+                    partList = comm.Scatter(unsortedListDistributed, 0);
                 }
                 else
                 {
-                    partList = comm.Receive<List<int>>(0, 0);
+                    partList = comm.Scatter<List<int>>(0);
                 }
 
                 comm.Barrier();
