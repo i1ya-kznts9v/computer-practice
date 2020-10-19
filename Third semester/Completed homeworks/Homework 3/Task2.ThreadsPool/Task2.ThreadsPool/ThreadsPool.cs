@@ -123,11 +123,6 @@ namespace Task2.ThreadsPool
 
             /*Threads must terminate correctly anyway*/
 
-            while (tasks.Count != 0)
-            {
-                // Waiting for completion of all current tasks
-            }
-
             isRunning = false;
 
             Monitor.Enter(tasks);
