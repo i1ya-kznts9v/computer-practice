@@ -96,19 +96,20 @@ namespace MPI
 
                 comm.Barrier();
 
-                if(comm.Rank == 0)
+                List<int>[] sortedListDistributed = comm.Gather(partList, 0);
+
+                comm.Barrier();
+
+                if (comm.Rank == 0)
                 {
-                    comm.Send(partList, (comm.Rank + 1) % comm.Size, 3);
+                    List<int> sortedList = new List<int>();
 
-                    partList = comm.Receive<List<int>>((comm.Rank + comm.Size - 1) % comm.Size, 3);
+                    for(int i = 0; i < sortedListDistributed.Length; i++)
+                    {
+                        sortedList.AddRange(sortedListDistributed[i]);
+                    }
 
-                    WriteListToFile(args[1], partList);
-                }
-                else
-                {
-                    partList.InsertRange(0, comm.Receive<List<int>>((comm.Rank + comm.Size - 1) % comm.Size, 3));
-
-                    comm.Send(partList, (comm.Rank + 1) % comm.Size, 3);
+                    WriteListToFile(args[1], sortedList);
                 }
             });
         }
