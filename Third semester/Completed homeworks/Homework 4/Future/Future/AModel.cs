@@ -40,7 +40,12 @@ namespace Future
                 futures = nextfutures;
             }
 
-            return futures[0].Result;
+            int result = futures[0].Result;
+
+            futures[0].Dispose();
+            futures.Clear();
+
+            return result;
         }
 
         protected int Sum(int x, int y)
