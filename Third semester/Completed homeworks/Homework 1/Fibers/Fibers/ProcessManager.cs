@@ -7,10 +7,11 @@ namespace Fibers
 {
     public static class ProcessManager
     {
-        static Dictionary<uint, int> Fibers = new Dictionary<uint, int>();
+        static Dictionary<uint, Process> Fibers = new Dictionary<uint, Process>();
         static List<uint> Finished = new List<uint>();
 
         static Policy Policy;
+        static int HighFreqRangeCount;
 
         static uint Current;
         static uint Primary;
@@ -26,7 +27,7 @@ namespace Fibers
             Action action = new Action(process.Run);
             Fiber fiber = new Fiber(action);
 
-            Fibers.Add(fiber.Id, process.Priority);
+            Fibers.Add(fiber.Id, process);
         }
 
         public static void Run(Policy policy)
@@ -45,11 +46,42 @@ namespace Fibers
             {
                 Next = -1;
             }
+            else if(Policy == Policy.Priority)
+            {
+                HighFreqRangeCount = ComputeHFRC();
+            }
 
             Switch(false);
 
             Thread.Sleep(1); // In connection with the problem with Fiber API in tests
             Dispose();
+        }
+
+        /* Create 3 abstact priority classes: low, medium, high
+           and compute low bound of high priority abstact class in terms
+           of real priorities. Then count the number of processes in this
+           high priority abstract class and get ratio of high priorities
+           to other classes */
+        static int ComputeHFRC()
+        {
+            int maxPriority = Fibers.Values.OrderByDescending(x => x.Priority).First().Priority;
+            int lowerBound = (maxPriority / 3) * 2 + 1; 
+            int count = 0;
+
+            if(lowerBound > maxPriority)
+            {
+                int temp = lowerBound;
+                lowerBound = maxPriority;
+                maxPriority = temp;
+            }
+
+            foreach(var fiber in Fibers)
+            {
+                if(fiber.Value.Priority >= lowerBound)
+                    count++;
+            }
+
+            return Fibers.Count / count;
         }
 
         public static void Switch(bool fiberFinished)
@@ -87,25 +119,23 @@ namespace Fibers
                     }
                 case Policy.Priority:
                     {
-                        choice = Fibers.OrderByDescending(x => x.Value).First().Key;
+                        var highFreqRange = Fibers.OrderByDescending(x => x.Value.Priority).Take(HighFreqRangeCount);
+                        var readyFibers = highFreqRange.Where(x => x.Key != Current && x.Value.IsReady);
 
-                        if (Fibers.Count > 1)
+                        if(readyFibers.Count() == 0)
                         {
-                            Dictionary<uint, int> newFibers = new Dictionary<uint, int>();
-
-                            foreach (var fiber in Fibers)
+                            if (highFreqRange.Count() == 1)
                             {
-                                if (fiber.Key == choice)
-                                {
-                                    newFibers.Add(fiber.Key, 0);
-                                }
-                                else
-                                {
-                                    newFibers.Add(fiber.Key, fiber.Value + 1);
-                                }
+                                choice = highFreqRange.First().Key;
                             }
-
-                            Fibers = newFibers;
+                            else
+                            {
+                                choice = highFreqRange.Where(x => x.Key != Current).First().Key;
+                            }
+                        }
+                        else
+                        {
+                            choice = readyFibers.First().Key;
                         }
 
                         break;

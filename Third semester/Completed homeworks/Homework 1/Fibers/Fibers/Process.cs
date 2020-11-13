@@ -15,7 +15,8 @@ namespace Fibers
         private const int PriorityLevelsNumber = 10;
         private readonly List<int> _workIntervals = new List<int>();
         private readonly List<int> _pauseIntervals = new List<int>();
-
+        
+        public bool IsReady { get; private set; }
         public int Priority { get; private set; }
 
         public int ActiveDuration
@@ -45,12 +46,14 @@ namespace Fibers
             }
 
             Priority = Rng.Next(PriorityLevelsNumber);
+            IsReady = true;
         }
 
         public void Run()
         {
             for (int i = 0; i < _workIntervals.Count; i++)
             {
+                IsReady = true;
                 Thread.Sleep(_workIntervals[i]); // work emulation
 
                 DateTime pauseBeginTime = DateTime.Now;
@@ -58,6 +61,7 @@ namespace Fibers
                 do
                 {
                     ProcessManager.Switch(false);
+                    IsReady = false;
                 }
                 while ((DateTime.Now - pauseBeginTime).TotalMilliseconds < _pauseIntervals[i]); // I/O emulation
             }
