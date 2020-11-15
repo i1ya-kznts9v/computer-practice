@@ -10,12 +10,12 @@ namespace Fibers
         static Dictionary<uint, Process> Fibers = new Dictionary<uint, Process>();
         static List<uint> Finished = new List<uint>();
 
-        static Policy Policy;
-        static int HighFreqRangeCount;
+        static Policy policy;
+        static int highFreqRangeCount;
 
-        static uint Current;
-        static uint Primary;
-        static int Next;
+        static uint current;
+        static uint primary;
+        static int next;
 
         public static int GetFibersCount()
         {
@@ -30,7 +30,7 @@ namespace Fibers
             Fibers.Add(fiber.Id, process);
         }
 
-        public static void Run(Policy policy)
+        public static void Run(Policy policyChoice)
         {
             if(Fibers.Count == 0)
             {
@@ -39,16 +39,16 @@ namespace Fibers
                 return;
             }
 
-            Policy = policy;
-            Primary = Fibers.ElementAt(0).Key;
+            policy = policyChoice;
+            primary = Fibers.ElementAt(0).Key;
 
-            if(Policy == Policy.Fifo)
+            if(policy == Policy.Fifo)
             {
-                Next = -1;
+                next = -1;
             }
-            else if(Policy == Policy.Priority)
+            else if(policy == Policy.Priority)
             {
-                HighFreqRangeCount = ComputeHFRC();
+                highFreqRangeCount = ComputeHFRC();
             }
 
             Switch(false);
@@ -93,34 +93,34 @@ namespace Fibers
 
             if(Fibers.Count == 0)
             {
-                Current = Fiber.PrimaryId;
+                current = Fiber.PrimaryId;
             }
             else
             {
-                Current = Select();
+                current = Select();
             }
 
             Thread.Sleep(1); // In connection with the problem with Fiber API in tests
-            Fiber.Switch(Current);
+            Fiber.Switch(current);
         }
 
         static uint Select()
         {
             uint choice = 0;
 
-            switch (Policy)
+            switch (policy)
             {
                 case Policy.Fifo:
                     {
-                        Next = (Next + 1) % Fibers.Count;
-                        choice = Fibers.ElementAt(Next).Key;
+                        next = (next + 1) % Fibers.Count;
+                        choice = Fibers.ElementAt(next).Key;
 
                         break;
                     }
                 case Policy.Priority:
                     {
-                        var highFreqRange = Fibers.OrderByDescending(x => x.Value.Priority).Take(HighFreqRangeCount);
-                        var readyFibers = highFreqRange.Where(x => x.Key != Current && x.Value.IsReady);
+                        var highFreqRange = Fibers.OrderByDescending(x => x.Value.Priority).Take(highFreqRangeCount);
+                        var readyFibers = highFreqRange.Where(x => x.Key != current && x.Value.IsReady);
 
                         if(readyFibers.Count() == 0)
                         {
@@ -130,7 +130,7 @@ namespace Fibers
                             }
                             else
                             {
-                                choice = highFreqRange.Where(x => x.Key != Current).First().Key;
+                                choice = highFreqRange.Where(x => x.Key != current).First().Key;
                             }
                         }
                         else
@@ -147,16 +147,16 @@ namespace Fibers
 
         static void Delete()
         {
-            if (Policy == Policy.Fifo)
+            if (policy == Policy.Fifo)
             {
-                Next--;
+                next--;
             }
 
-            Fibers.Remove(Current);
+            Fibers.Remove(current);
 
-            if (Current != Primary)
+            if (current != primary)
             {
-                Finished.Add(Current);
+                Finished.Add(current);
             }
         }
 
