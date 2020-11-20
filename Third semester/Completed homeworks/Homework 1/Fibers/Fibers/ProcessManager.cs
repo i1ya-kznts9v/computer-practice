@@ -12,6 +12,7 @@ namespace Fibers
 
         static Policy policy;
         static int highFreqRangeCount;
+        static Random random;
 
         static uint current;
         static uint primary;
@@ -49,6 +50,7 @@ namespace Fibers
             else if(policy == Policy.Priority)
             {
                 highFreqRangeCount = ComputeHFRC();
+                random = new Random();
             }
 
             Switch(false);
@@ -119,7 +121,9 @@ namespace Fibers
                     }
                 case Policy.Priority:
                     {
-                        var highFreqRange = Fibers.OrderByDescending(x => x.Value.Priority).Take(highFreqRangeCount);
+                        Fibers = Fibers.OrderByDescending(x => x.Value.Priority).ToDictionary(dict => dict.Key, dict => dict.Value);
+
+                        var highFreqRange = Fibers.Take(highFreqRangeCount);
                         var readyFibers = highFreqRange.Where(x => x.Key != current && x.Value.IsReady);
 
                         if(readyFibers.Count() == 0)
@@ -130,7 +134,46 @@ namespace Fibers
                             }
                             else
                             {
-                                choice = highFreqRange.Where(x => x.Key != current).First().Key;
+                                if(Fibers.Count == highFreqRange.Count())
+                                {
+                                    choice = highFreqRange.Where(x => x.Key != current).First().Key;
+                                }
+                                else
+                                {
+                                    var decision = random.Next(2);
+
+                                    switch(decision)
+                                    {
+                                        case 0:
+                                            {
+                                                choice = highFreqRange.Where(x => x.Key != current).First().Key;
+
+                                                break;
+                                            }
+                                        case 1:
+                                            {
+                                                var lowFreqRange = Fibers.Skip(highFreqRangeCount).ToList();
+
+                                                var prioritySum = lowFreqRange.Sum(x => x.Value.Priority);
+                                                var assigner = random.Next(prioritySum);
+
+                                                int counter = 0;
+                                                foreach(var fiber in lowFreqRange)
+                                                {
+                                                    counter += fiber.Value.Priority;
+
+                                                    if(counter >= assigner)
+                                                    {
+                                                        choice = fiber.Key;
+
+                                                        break;
+                                                    }
+                                                }
+
+                                                break;
+                                            }
+                                    }
+                                }
                             }
                         }
                         else
