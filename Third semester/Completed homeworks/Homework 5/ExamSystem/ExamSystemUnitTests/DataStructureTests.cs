@@ -11,6 +11,7 @@ namespace ExamSystemUnitTests
     public class DataStructureTests
     {
         Random random = new Random();
+        object locker = new object();
 
         [TestMethod]
         public void LockFreeListHashTableTest()
@@ -70,11 +71,14 @@ namespace ExamSystemUnitTests
                 int studentID = random.Next();
                 int courseID = random.Next();
 
-                examSystem.Add(studentID, courseID);
-                Assert.IsTrue(examSystem.Contains(studentID, courseID));
+                lock(locker)
+                {
+                    examSystem.Add(studentID, courseID);
+                    Assert.IsTrue(examSystem.Contains(studentID, courseID));
 
-                examSystem.Remove(studentID, courseID);
-                Assert.IsFalse(examSystem.Contains(studentID, courseID));
+                    examSystem.Remove(studentID, courseID);
+                    Assert.IsFalse(examSystem.Contains(studentID, courseID));
+                }
             }
         }
     }

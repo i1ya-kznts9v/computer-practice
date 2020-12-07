@@ -8,7 +8,7 @@ namespace ExamSystem.LockFreeListHashTables
 
         LockFreeListWindow Find(LockFreeNode node)
         {
-            if (head == null)
+            if (head == null || node == null)
             {
                 return null;
             }
@@ -60,6 +60,11 @@ namespace ExamSystem.LockFreeListHashTables
 
         public bool Contains(LockFreeNode node)
         {
+            if (node == null)
+            {
+                return false;
+            }
+
             LockFreeListWindow window = Find(node);
 
             if(window == null)
