@@ -2,58 +2,57 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ExamSystem.LockFreeListHashTables;
 using ExamSystem.StripedHashTables;
-using System.Threading;
 using ExamSystem;
+using System.Threading.Tasks;
 
 namespace ExamSystemUnitTests
 {
     [TestClass]
     public class DataStructureTests
     {
-        Random random = new Random();
-        object locker = new object();
-
         [TestMethod]
         public void LockFreeListHashTableTest()
         {
             LockFreeListHashTable lockFreeListHashTable = new LockFreeListHashTable(256);
-            Thread[] threads = new Thread[32];
+            Task[] tasks = new Task[32];
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i] = new Thread(new ParameterizedThreadStart(MakeRequests));
+                tasks[i] = new Task(() => MakeRequests(lockFreeListHashTable));
             }
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i].Start(lockFreeListHashTable);
+                tasks[i].Start();
             }
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i].Join();
+                tasks[i].Wait();
+                tasks[i].Dispose();
             }
         }
 
         [TestMethod]
         public void StripedHashTableTest()
         {
-            StripedHashTable StripedHashTable = new StripedHashTable(256);
-            Thread[] threads = new Thread[32];
+            StripedHashTable stripedHashTable = new StripedHashTable(256);
+            Task[] tasks = new Task[32];
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i] = new Thread(new ParameterizedThreadStart(MakeRequests));
+                tasks[i] = new Task(() => MakeRequests(stripedHashTable));
             }
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i].Start(StripedHashTable);
+                tasks[i].Start();
             }
 
-            for (int i = 0; i < threads.Length; i++)
+            for (int i = 0; i < tasks.Length; i++)
             {
-                threads[i].Join();
+                tasks[i].Wait();
+                tasks[i].Dispose();
             }
         }
 
@@ -68,17 +67,14 @@ namespace ExamSystemUnitTests
 
             for (int i = 0; i < 1024; i++)
             {
-                int studentID = random.Next();
-                int courseID = random.Next();
+                int studentID = Math.Abs(Guid.NewGuid().GetHashCode());
+                int courseID = Math.Abs(Guid.NewGuid().GetHashCode());
 
-                lock(locker)
-                {
-                    examSystem.Add(studentID, courseID);
-                    Assert.IsTrue(examSystem.Contains(studentID, courseID));
+                examSystem.Add(studentID, courseID);
+                Assert.IsTrue(examSystem.Contains(studentID, courseID));
 
-                    examSystem.Remove(studentID, courseID);
-                    Assert.IsFalse(examSystem.Contains(studentID, courseID));
-                }
+                examSystem.Remove(studentID, courseID);
+                Assert.IsFalse(examSystem.Contains(studentID, courseID));
             }
         }
     }

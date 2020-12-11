@@ -9,7 +9,7 @@ namespace ExamSystem.StripedHashTables
     {
         List<StripedNode>[] hashTable;
         uint capacity;
-        uint elements;
+        int elements;
 
         Mutex[] lockers;
         uint lockability;
@@ -87,7 +87,7 @@ namespace ExamSystem.StripedHashTables
                     StripedNode node = new StripedNode(studentId, courseId);
 
                     hashTable[hash].Add(node);
-                    elements++;
+                    Interlocked.Increment(ref elements);
                 }
             }
             finally
@@ -174,7 +174,7 @@ namespace ExamSystem.StripedHashTables
                 if (hashTable[hash].Any(x => x.StudentID == studentId && x.CourseID == courseId))
                 {
                     hashTable[hash].Remove(hashTable[hash].Find(x => x.StudentID == studentId && x.CourseID == courseId));
-                    elements--;
+                    Interlocked.Decrement(ref elements);
                 }
             }
             finally

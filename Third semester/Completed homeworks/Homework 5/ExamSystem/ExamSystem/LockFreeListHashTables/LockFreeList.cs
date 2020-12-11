@@ -16,9 +16,9 @@ namespace ExamSystem.LockFreeListHashTables
             LockFreeNode previous = null;
             LockFreeNode current = head;
 
-            while(!current.Equals(node))
+            while (current != null && !current.Equals(node))
             {
-                if(current.GetNext() == null)
+                if (current.GetNext() == null)
                 {
                     return null;
                 }
@@ -26,6 +26,11 @@ namespace ExamSystem.LockFreeListHashTables
                 previous = current;
                 current = current.GetNext();
             }
+
+            if(current == null)
+            {
+                return null;
+            }    
 
             return new LockFreeListWindow(previous, current);
         }
