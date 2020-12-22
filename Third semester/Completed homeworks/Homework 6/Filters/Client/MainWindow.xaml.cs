@@ -52,7 +52,7 @@ namespace Client
             imageSelection.Title = "Select the image";
             imageSelection.Filter = "Все файлы (*.*) | *.*";
 
-            if (imageSelection.ShowDialog() == true)
+            if ((bool)imageSelection.ShowDialog())
             {
                 path = imageSelection.FileName;
 
@@ -141,7 +141,7 @@ namespace Client
             path += stamp;
             saveSelection.FileName = path;
 
-            if (saveSelection.ShowDialog() == true)
+            if ((bool)saveSelection.ShowDialog())
             {
                 try
                 {
